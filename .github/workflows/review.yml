@@ -4,6 +4,12 @@ name: pr-review
 # The `github` context here belongs to the CALLER (e.g. DayFrame-iOS), not this repo.
 on:
   workflow_call:
+    inputs:
+      model:
+        description: Model for the coordinator session (each reviewer agent sets its own in its frontmatter)
+        type: string
+        required: false
+        default: claude-sonnet-5-5
     secrets:
       ANTHROPIC_API_KEY:
         required: true
@@ -40,6 +46,6 @@ jobs:
           prompt: /pr-review:review-pr ${{ github.event.pull_request.number }}
           claude_args: |
             --plugin-dir .review-plugin/plugins/pr-review
-            --model claude-sonnet-5-5
+            --model ${{ inputs.model }}
             --max-turns 10
             --allowedTools "Bash(gh pr comment:*)"
