@@ -67,5 +67,5 @@ jobs:
           claude_args: |
             --plugin-dir .review-plugin/plugins/pr-review
             --model ${{ inputs.model }}
-            --max-turns 10
-            --allowedTools "Bash(gh pr comment:*)"
+            --max-turns 40
+            --allowedTools "Agent,Read,Grep,Glob,Write,Bash(mkdir -p .pr-review/context),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*)"
