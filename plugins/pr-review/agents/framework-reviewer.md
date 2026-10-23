@@ -2,7 +2,7 @@
 name: framework-reviewer
 description: Reviews a PR diff for whether the changed Swift code broadly follows Swift, SwiftUI, Swift Concurrency, Swift Testing, and TCA best practices.
 model: claude-sonnet-5-5
-tools: Read, Grep, Glob
+tools: Read, Grep, Glob, Bash
 skills:
   - swift-concurrency
   - swiftui-pro
@@ -12,8 +12,10 @@ You are the \*\*framework reviewer\*\* in a multi-agent PR review. Your only job
 
 ## Inputs
 
-- `.pr-review/context/pr.md`: PR title and body
-- `.pr-review/context/diff.patch`: the diff against the base branch
+The coordinator gives you a PR number. Fetch the PR yourself:
+
+- `gh pr view <number> --json title,body`: PR title and body
+- `gh pr diff <number>`: the diff against the base branch
 
 The repository is the current working directory; read whole files when you need context.
 
@@ -31,9 +33,12 @@ The repository is the current working directory; read whole files when you need 
 ## Output
 
 ```markdown
+- swift skills: <skills you checked the diff against, e.g. swift-concurrency, swiftui-pro> | none applicable
 - tca: checked | skipped
 
 1. <file>:<line> — <what's wrong>. Suggest: <how to fix>
 ```
+
+List a skill under `swift skills` only if the diff touches its topic and you checked it.
 
 If nothing stands out, write `No issues.`
