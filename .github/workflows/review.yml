@@ -1,0 +1,45 @@
+name: pr-review
+
+# Reusable workflow: called from each target repo's thin entry workflow.
+# The `github` context here belongs to the CALLER (e.g. DayFrame-iOS), not this repo.
+on:
+  workflow_call:
+    secrets:
+      ANTHROPIC_API_KEY:
+        required: true
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      # A. The code under review: the caller repo, at this PR's head.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # B. The reviewer: this plugin repo, cloned into a subfolder.
+      #    The repo is public, so no token is needed. If it goes private, add `token:`
+      #    with a PAT that can read it — GITHUB_TOKEN only reaches the caller repo.
+      - uses: actions/checkout@v4
+        with:
+          repository: jocelinho/pr-review-plugin
+          ref: main
+          path: .review-plugin
+
+      # C. Headless Claude Code, with the plugin loaded from the folder above.
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          prompt: /pr-review:review-pr ${{ github.event.pull_request.number }}
+          claude_args: |
+            --plugin-dir .review-plugin/plugins/pr-review
+            --model claude-sonnet-5-5
+            --max-turns 10
+            --allowedTools "Bash(gh pr comment:*)"

@@ -1,0 +1,20 @@
+# Copy to <target-repo>/.github/workflows/ai-review.yml
+name: ai-review
+
+on:
+  pull_request:
+    types: [labeled]
+
+concurrency:
+  group: ai-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    # Only run when someone adds the `ai-review` label.
+    if: github.event.label.name == 'ai-review'
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: jocelinho/pr-review-plugin/.github/workflows/review.yml@main
+    secrets: inherit

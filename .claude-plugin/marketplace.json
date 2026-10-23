@@ -1,0 +1,14 @@
+{
+  "name": "pr-review-marketplace",
+  "owner": {
+    "name": "Jocelin Ho"
+  },
+  "description": "Claude Code plugins for iOS repos",
+  "plugins": [
+    {
+      "name": "pr-review",
+      "source": "./plugins/pr-review",
+      "description": "Multi-agent PR reviewer for iOS (Swift + TCA) repos"
+    }
+  ]
+}
