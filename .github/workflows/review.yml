@@ -13,6 +13,9 @@ on:
     secrets:
       ANTHROPIC_API_KEY:
         required: true
+      SKILLS_REPO_TOKEN:
+        description: Optional PAT that can read cardinalblue/skills; enables the TCA checks
+        required: false
 
 jobs:
   review:
@@ -22,6 +25,10 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+
+    # `secrets` can't be referenced in a step's `if:`, so expose only whether it is set.
+    env:
+      HAS_SKILLS_TOKEN: ${{ secrets.SKILLS_REPO_TOKEN != '' }}
 
     steps:
       # A. The code under review: the caller repo, at this PR's head.
@@ -37,6 +44,19 @@ jobs:
           repository: jocelinho/pr-review-plugin
           ref: main
           path: .review-plugin
+
+      # Optional: the company's private TCA skill. Skipped without a token, and a token
+      # without access fails this step without failing the job. The framework reviewer
+      # uses the TCA skill only if
+      # .company-skills/plugins/ios/skills/tca-composable-architecture/SKILL.md exists.
+      - uses: actions/checkout@v4
+        if: env.HAS_SKILLS_TOKEN == 'true'
+        continue-on-error: true
+        with:
+          repository: cardinalblue/skills
+          path: .company-skills
+          token: ${{ secrets.SKILLS_REPO_TOKEN }}
+          sparse-checkout: plugins/ios/skills/tca-composable-architecture
 
       # C. Headless Claude Code, with the plugin loaded from the folder above.
       - uses: anthropics/claude-code-action@v1

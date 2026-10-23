@@ -24,3 +24,5 @@ jobs:
     # every secret in this repo to a workflow that lives in another repo.
     secrets:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      # Optional: a PAT that can read cardinalblue/skills turns on the TCA checks.
+      SKILLS_REPO_TOKEN: ${{ secrets.SKILLS_REPO_TOKEN }}
